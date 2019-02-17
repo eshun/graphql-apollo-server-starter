@@ -38,6 +38,16 @@ exports.typeDefs = gql`
   }
 
   """
+  分页
+  """
+  type Pagination {
+    list: [Post]
+    total: Int
+    pageSize: Int
+    current: Int
+  }
+
+  """
   升高
   """
   enum HeightUnit {
@@ -49,8 +59,7 @@ exports.typeDefs = gql`
 
   type Query {
     hello: String
-    me: User
-    users: [User]
-    user(name: String!): User
+    users(count: Int): [User]
+    user(id: Int, name: String): User
   }
 `;
