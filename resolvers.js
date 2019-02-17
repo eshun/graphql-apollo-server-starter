@@ -1,24 +1,30 @@
 const { datas } = require("./data");
 
-const findUserById = id => datas.users.find(user => user.id === id);
-const findUserByName = name => datas.users.find(user => user.name === name);
-const filterPostsByAuthorId = authorId =>
-  datas.posts.filter(post => post.authorId === authorId);
-
 exports.resolvers = {
   Query: {
     hello: (root, args, context) => "Hello world!",
-    me: (root, args, { userId }) => {
-      return findUserById(userId);
+    users: (root, { count }) => {
+      return datas.users(count);
     },
-    users: () => datas.users,
-    user: (root, { name }, context) => {
-      return findUserByName(name);
+    user: (root, args, context) => {
+      const { id, name } = args;
+      const users = datas.users();
+      if (id) {
+        return users.find(user => user.id === id);
+      }
+      if (name) {
+        return users.find(user => user.name === name);
+      }
+      throw new Error(`user id "${id}" or name "${name}" not supported.`);
     }
   },
+  //Mutation: {},
   User: {
     posts: (parent, args, context) => {
-      return filterPostsByAuthorId(parent.id);
+      const posts = datas.posts().filter(post => post.authorId === parent.id);
+      //const { first, offset } = args;
+
+      return posts;
     },
     height: (parent, args) => {
       const { unit } = args;
@@ -29,7 +35,8 @@ exports.resolvers = {
   },
   Post: {
     author: (parent, args, context) => {
-      return findUserById(parent.authorId);
+      const users = datas.users();
+      return users.find(user => user.id === parent.authorId);
     }
   }
 };
